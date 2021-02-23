@@ -3,7 +3,7 @@ import { read, listRelated } from './apiCore';
 import Layout from '../core/Layout';
 import Card from '../core/Card';
 
-const Product = ({ props }) => {
+const Product = (props) => {
   const [product, setProduct] = useState({});
   const [relatedProduct, setRelatedProduct] = useState([]);
   const [error, setError] = useState(false);
@@ -28,6 +28,7 @@ const Product = ({ props }) => {
   };
 
   useEffect(() => {
+    console.log('props:', props);
     const productId = props.match.params.productId;
     loadSingleProduct(productId);
     // eslint-disable-next-line react-hooks/exhaustive-deps

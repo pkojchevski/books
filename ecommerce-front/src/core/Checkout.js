@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { isAuthenticated } from '../auth';
 import { Link } from 'react-router-dom';
-import { generateToken } from '../../../ecommerce/controllers/braintree';
 import {
   getBraintreeClientToken,
   processPayment,
@@ -24,7 +23,7 @@ const Checkout = ({ products }) => {
   const token = isAuthenticated() && isAuthenticated().token;
   const getToken = (userId, token) => {
     getBraintreeClientToken(userId, token).then((data) => {
-      if (data.error) {
+      if (data && data.error) {
         setData({ ...data, error: data.error });
       } else {
         setData({ clientToken: data.clientToken });
@@ -37,9 +36,12 @@ const Checkout = ({ products }) => {
   }, []);
 
   const getTotal = () => {
-    return products.reduce((currentValue, nextValue) => {
-      return currentValue + nextValue.count * nextValue.price;
-    }, 0);
+    return (
+      products &&
+      products.reduce((currentValue, nextValue) => {
+        return currentValue + nextValue.count * nextValue.price;
+      }, 0)
+    );
   };
 
   const showCheckout = () => {
@@ -128,23 +130,23 @@ const Checkout = ({ products }) => {
     </div>
   );
 
-  const showError = (error) => {
+  const showError = (error) => (
     <div
       className="alert alert-danger"
       style={{ display: error ? '' : 'none' }}
     >
       {error}
-    </div>;
-  };
+    </div>
+  );
 
-  const showSuccess = (success) => {
+  const showSuccess = (success) => (
     <div
       className="alert alert-info"
       style={{ display: success ? '' : 'none' }}
     >
       Thanks! Your payment was successfull.
-    </div>;
-  };
+    </div>
+  );
 
   const showLoading = (loading) => loading && <h2>Loading...</h2>;
   return (

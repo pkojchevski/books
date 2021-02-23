@@ -1,0 +1,12 @@
+{
+  "name": "",
+  "description": "",
+  "price": 18,
+  "sold": 2,
+  "quantity": 24,
+  "category": "",
+  "photo": "",
+  "shipping": true,
+
+  "timestamps": true
+}

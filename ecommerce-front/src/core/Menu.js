@@ -25,18 +25,20 @@ const Menu = ({ history }) => {
             Home{' '}
           </Link>{' '}
         </li>{' '}
-        <li className="nav-item">
-          <Link
-            className="nav-link"
-            style={isActive(history, '/cart')}
-            to="/cart"
-          >
-            Cart
-            <sup>
-              <small className="cart-badge">{itemTotal()}</small>
-            </sup>
-          </Link>
-        </li>
+        {isAuthenticated() && (
+          <li className="nav-item">
+            <Link
+              className="nav-link"
+              style={isActive(history, '/cart')}
+              to="/cart"
+            >
+              Cart
+              <sup>
+                <small className="cart-badge">{itemTotal()}</small>
+              </sup>
+            </Link>
+          </li>
+        )}
         {isAuthenticated() && isAuthenticated().user.role === 0 && (
           <li className="nav-item">
             <Link
@@ -94,7 +96,9 @@ const Menu = ({ history }) => {
                   history.push('/');
                 })
               }
-            ></span>
+            >
+              Signout
+            </span>
           </li>
         )}
       </ul>

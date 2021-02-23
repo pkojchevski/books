@@ -3,8 +3,8 @@
 const formidable = require('formidable');
 const _ = require('lodash');
 const fs = require('fs');
-const { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } = require('constants');
-const Product = require('../models/Product');
+const Product = require('../models/product');
+
 const { errorHandler } = require('../helpers/dbErrorHandler');
 
 exports.create = (req, res) => {
@@ -17,7 +17,7 @@ exports.create = (req, res) => {
     const { name, description, price, category, quantity, shipping } = fields;
     const product = new Product(fields);
 
-    if (!name || !description || !price || !!category || !quantity || !shipping)
+    if (!name || !description || !price || !category || !quantity || !shipping)
       return res.status(400).json({ error: 'Fields are required' });
 
     if (files.photo) {
@@ -31,8 +31,8 @@ exports.create = (req, res) => {
       product.photo.contentType = files.photo.type;
     }
 
-    product.save((err, result) => {
-      if (err) return res.status(400).json({ error: errorHandler(err) });
+    product.save((error, result) => {
+      if (error) return res.status(400).json({ error: errorHandler(err) });
 
       res.json(result);
     });
@@ -121,7 +121,6 @@ exports.list = (req, res) => {
           .status(400)
           .json({ error: 'Image shouldnt be bigger then 1MB' });
       }
-
       return res.send(products);
     });
 };
@@ -187,4 +186,13 @@ exports.decreaseQuantity = (req, res, next) => {
     }
     next();
   });
+};
+
+exports.photo = (req, res, next) => {
+  if (req.product.photo.data) {
+    res.set('Content-Type', req.product.photo.contentType);
+    return res.send(req.product.photo.data);
+  }
+
+  return next();
 };

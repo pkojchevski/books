@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { isAuthenticated } from '../auth';
-import { createProduct, getCategories } from './apiAdmin';
+import { updateProduct, getCategories, getProduct } from './apiAdmin';
 import Layout from '../core/Layout';
-
-const AddProduct = () => {
+import { Redirect } from 'react-router-dom';
+const UpdateProduct = (props) => {
   const { user, token } = isAuthenticated();
   const [values, setValues] = useState({
     name: '',
@@ -36,8 +36,30 @@ const AddProduct = () => {
     redirectToProfile,
     formData,
   } = values;
+  const init = (productId) => {
+    getProduct(productId).then((data) => {
+      if (data.error) {
+        console.log(error);
+      } else {
+        // populate state
+        setValues({
+          ...values,
+          name: data.name,
+          price: data.price,
+          category: data.category._id,
+          shipping: data.shipping,
+          quantity: data.quantity,
+          loading: false,
+          createdProduct: data.name,
+          redirectToProfile: true,
+        });
 
-  const init = () => {
+        // load categories
+        initCategories();
+      }
+    });
+  };
+  const initCategories = () => {
     return getCategories().then((data) => {
       if (data.error) {
         setValues({ ...values, error: data.error });
@@ -49,7 +71,8 @@ const AddProduct = () => {
 
   useEffect(() => {
     setValues({ ...values, formData: new FormData() });
-    init();
+    init(props.match.params.productId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChange = (name) => (event) => {
@@ -61,7 +84,7 @@ const AddProduct = () => {
   const onClickSubmit = (event) => {
     event.preventDefault();
     setValues({ ...values, error: '', loading: 'true' });
-    return createProduct(user._id, token, formData).then((data) => {
+    return updateProduct(user._id, token, formData).then((data) => {
       if (data.error) {
         setValues({ ...values, error: data.error, loading: false });
       } else {
@@ -75,6 +98,8 @@ const AddProduct = () => {
           quantity: '',
           createdProduct: data.name,
           loading: false,
+          redirectToProfile: false,
+          formData: '',
         });
       }
     });
@@ -106,6 +131,14 @@ const AddProduct = () => {
         <h2>Loading....</h2>
       </div>
     );
+
+  const redirectUser = () => {
+    if (redirectToProfile) {
+      if (!error) {
+        return <Redirect to="/" />;
+      }
+    }
+  };
 
   const newPostForm = () => {
     return (
@@ -194,10 +227,11 @@ const AddProduct = () => {
           {showError()}
           {showLoading()}
           {newPostForm()}
+          {redirectUser()}
         </div>
       </div>
     </Layout>
   );
 };
 
-export default AddProduct;
+export default UpdateProduct;
